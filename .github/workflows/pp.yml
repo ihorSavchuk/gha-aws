@@ -9,12 +9,15 @@ name: AWS app pp
 #env:
 #  APPLICATION_NAME    : "Flask app"
 #  DEPLOY_PACKAGE_NAME : "flask-app-deploy-ver-${{ github.sha }}"
-
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
+#on:
+#  push:
+#    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
 
 jobs:
   testing:
