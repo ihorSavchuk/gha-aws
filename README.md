@@ -2,6 +2,6 @@
 
 
 Status of Last Deployment:<br>
-<img src="https://github.com/ihorSavchuk/gha-aws/workflows/CI-CD-Pipeline-to-AWS-ElasticBeastalk/badge.svg?branch=master"><br>
+<img src="https://github.com/ihorSavchuk/gha-aws/workflows/AWS-app-pp/badge.svg?branch=master"><br>
 
 
