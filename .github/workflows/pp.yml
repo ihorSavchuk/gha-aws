@@ -6,9 +6,9 @@
 #
 #---------------------------------------------------------------------
 name: AWS app pp
-#env:
-#  APPLICATION_NAME    : "Flask app"
-#  DEPLOY_PACKAGE_NAME : "flask-app-deploy-ver-${{ github.sha }}"
+env:
+  APPLICATION_NAME    : "Flask app"
+  DEPLOY_PACKAGE_NAME : "flask-app-deploy-ver-${{ github.sha }}"
 on:
   push:
     branches:
@@ -22,11 +22,11 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-
-    - name: Execute
-      run: |
-        echo "Start testing"
-        echo "Appication name: ${{ env.APPLICATION_NAME }}"
+    steps:
+      - name: Execute testing
+        run: |
+          echo "Start testing"
+          echo "Appication name: ${{ env.APPLICATION_NAME }}"
 
 #    - name: Git clone my repo
 #      uses: actions/checkout@v1
