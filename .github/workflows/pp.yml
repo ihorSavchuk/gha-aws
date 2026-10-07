@@ -1,0 +1,50 @@
+name: AWS app CI/CD
+env:
+  APPLICATION_NAME    : "Flask app"
+  DEPLOY_PACKAGE_NAME : "flask-deploy-ver-${{ github.sha }}"
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+      -
+    - name: Execute
+      run: |
+        echo "Start testing"
+        echo "Appication name: ${{ env.APPLICATION_NAME }}"
+
+    - name: Git clone my repo
+      uses: actions/checkout@v1
+
+    - name: Check folder
+      run : ls -la
+
+  build:
+    runs-on: ubuntu-latest
+      needs: [tests]
+
+      env:
+        VAR1: "Job Variable1"
+
+    steps:
+      - name: Start Deploy
+        run : echo "Deployment started"
+
+      - name: Env vars
+        run : |
+          echo "Var1 = ${{ env.VAR1 }}"
+        env:
+          LOCAL_VAR: "This is Super local Environment variable"
+
+      - name: Printing Deployment package
+        run : echo "Deplyo pakcage name is ${{ env.DEPLOY_PACKAGE_NAME }}"
+
+      - name: AWS package check
+        run : aws --version
+
+      - name: Zip check
+        run : zip --version
