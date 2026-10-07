@@ -7,8 +7,11 @@
 #---------------------------------------------------------------------
 name: AWS app pp
 env:
-  APPLICATION_NAME    : "Flask app"
-  DEPLOY_PACKAGE_NAME : "flask-app-deploy-ver-${{ github.sha }}"
+  EB_PACKAGE_S3_BUCKET_NAME : "elasticbeanstalk-eu-central-1-178163958304"
+  EB_APPLICATION_NAME       : "P1"
+  EB_ENVIRONMENT_NAME       : "P1-env"#ch
+  DEPLOY_PACKAGE_NAME       : "flask_app_${{ github.sha }}.zip"#ch
+  AWS_REGION_NAME           : "eu-central-1"#ch
 on:
   push:
     branches:
@@ -20,43 +23,51 @@ on:
 #    branches: [ "master" ]
 
 jobs:
-  testing:
+  ci:
     runs-on: ubuntu-latest
-    steps:
-      - name: Execute testing
-        run: |
-          echo "Start testing"
-          echo "Appication name: ${{ env.APPLICATION_NAME }}"
 
-      - name: Git clone my repo
+    steps:
+      - name: Git clone our repo
         uses: actions/checkout@v1
 
-      - name: Check folder
-        run : ls -la
+      - name: Create ZIP deployment package
+        run : zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
 
-  build:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id    :  ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
+          aws-region           :  ${{ env.REGION_NAME }}
 
-    runs-on: ubuntu-latest
-    needs: [testing]
+      - name: Copy Deployment package to S3 bucket
+        run : aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }}  s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
 
-    env:
-      VAR1: "Job Variable1"
+      - name: CI step ended up
+        run : echo "CI Pipeline ended up successfully"
 
-    steps:
-      - name: Start Deploy
-        run : echo "Deployment started"
-
-      - name: Env vars
-        run : |
-          echo "Var1 = ${{ env.VAR1 }}"
-        env:
-          LOCAL_VAR: "This is Super local Environment variable"
-
-      - name: Printing Deployment package
-        run : echo "Deplyo pakcage name is ${{ env.DEPLOY_PACKAGE_NAME }}"
-
-      - name: AWS package check
-        run : aws --version
-
-      - name: Zip check
-        run : zip --version
+#  build:
+#    runs-on: ubuntu-latest
+#    needs: [ci]
+#
+#    steps:
+#      - name: Configure my AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id    :  ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region           :  ${{ env.REGION_NAME }}
+#
+#      - name: Create new ElasticBeanstalk Application Version
+#        run : |
+#          aws elasticbeanstalk create-application-version \
+#          --application-name ${{ env.EB_APPLICATION_NAME }} \
+#          --source-bundle S3Bucket="${{ env.EB_PACKAGE_S3_BUCKET_NAME }}",S3Key="${{ env.DEPLOY_PACKAGE_NAME }}" \
+#          --version-label "Ver-${{ github.sha }}" \
+#          --description "CoimmitSHA-${{ github.sha }}"
+#
+#      - name: Deploy new ElasticBeanstalk Application Version
+#        run : aws elasticbeanstalk update-environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "Ver-${{ github.sha }}"
+#
+#      - name: Print Happy Message for CD finish
+#        run : echo "CD Pipeline part Finished successfully!"
